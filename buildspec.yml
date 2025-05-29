@@ -1,0 +1,37 @@
+### AWS buildspec.yml file for building a Docker image and pushing it to ECR
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      docker: 24
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+  build:
+    commands:
+      - echo Building the Docker image...
+      - docker build -t $IMAGE --build-arg PHP_VERSION=$PHP_VERSION .
+  post_build:
+    commands:
+      - echo Pushing the Docker image to ECR...
+      - docker tag $IMAGE:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE:$IMAGE_TAG
+      - docker images | grep $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE:$IMAGE_TAG
+artifacts:
+  files:
+    - '**/*'
+  discard-paths: yes
+cache:
+  paths:
+    - '/root/.m2/**/*'
+    - '/root/.npm/**/*'
+    - '/root/.cache/**/*'
+    - '/root/.docker/**/*'
+env:
+  variables:
+    AWS_ACCOUNT_ID: '208722357485'
+    AWS_REGION: 'eu-south-1'
+    PHP_VERSION: '1-php8.4'
+    IMAGE: 'fast8d/php-base-image'
+    IMAGE_TAG: 'latest'
