@@ -34,17 +34,15 @@ phases:
   post_build:
     commands:
       - echo tagging web image...
-      - docker tag $ECR_WEB_IMAGE:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_WEB_IMAGE:latest
+      - docker tag $ECR_WEB_IMAGE $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_WEB_IMAGE
       - echo pushing web image...
-      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_WEB_IMAGE:latest
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_WEB_IMAGE
       - echo web image pushed successfully
-      - docker images | grep $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_WEB_IMAGE:latest
       - echo tagging worker image...
-      - docker tag $ECR_WORKER_IMAGE:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_WORKER_IMAGE:latest
+      - docker tag $ECR_WORKER_IMAGE $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_WORKER_IMAGE
       - echo pushing worker image...
-      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_WORKER_IMAGE:latest
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_WORKER_IMAGE
       - echo worker image pushed successfully
-      - docker images | grep $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_WORKER_IMAGE:latest
       - echo Build completed on `date`
 
 cache:
@@ -55,7 +53,7 @@ env:
   variables:
     AWS_ACCOUNT_ID: 208722357485
     BASE_WEB_IMAGE: dunglas/frankenphp:php8.4.8
-    ECR_WEB_IMAGE: fast8d/php-base-web-image
+    ECR_WEB_IMAGE: fast8d/php-base-web-image:latest
     BASE_WORKER_IMAGE: php:8.4.8-cli-bookworm
-    ECR_WORKER_IMAGE: fast8d/php-base-worker-image
+    ECR_WORKER_IMAGE: fast8d/php-base-worker-image:latest
     BUILD_PLATFORM: linux/arm64
