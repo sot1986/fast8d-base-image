@@ -41,13 +41,13 @@ phases:
   post_build:
     commands:
       - echo pushing web image...
-      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_WEB_IMAGE
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_WEB_IMAGE
       - echo web image pushed successfully
-      - docker images | grep $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_WEB_IMAGE
+      - docker images | grep $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_WEB_IMAGE
       - echo pushing worker image...
-      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_WORKER_IMAGE
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_WORKER_IMAGE
       - echo worker image pushed successfully
-      - docker images | grep $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_WORKER_IMAGE
+      - docker images | grep $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_WORKER_IMAGE
       - echo Build completed on `date`
 
 cache:
@@ -57,7 +57,6 @@ cache:
 env:
   variables:
     AWS_ACCOUNT_ID: 208722357485
-    AWS_DEFAULT_REGION: eu-south-1
     BASE_WEB_IMAGE: dunglas/frankenphp:php8.4.8
     ECR_WEB_IMAGE: fast8d/php-base-web-image
     BASE_WORKER_IMAGE: php:8.4.8-cli-bookworm
