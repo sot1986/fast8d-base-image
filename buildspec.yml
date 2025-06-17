@@ -4,27 +4,62 @@ phases:
   pre_build:
     commands:
       - echo Logging in to Amazon ECR...
-      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+      - >
+        aws ecr get-login-password
+        --region $AWS_REGION | docker login
+        --username AWS
+        --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
   build:
     commands:
-      - echo Building the Docker image...
-      - docker build -t $IMAGE --build-arg PHP_VERSION=$PHP_VERSION .
+      - echo Building the Docker web image...
+      - >
+        docker build
+        --platform $BUILD_PLATFORM
+        -t $ECR_WEB_IMAGE
+        --build-arg WEB_BASE_IMAGE=$WEB_BASE_IMAGE
+        --target web
+        .
+      - echo web image built successfully
+      - echo tagging web image...
+      - docker tag $ECR_WEB_IMAGE $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_WEB_IMAGE
+      - echo web image built successfully
+
+      - >
+        docker build \
+        --platform ${BUILD_PLATFORM} \
+        -t ${ECR_WORKER_IMAGE} \
+        --build-arg BASE_IMAGE=${WORKER_BASE_IMAGE} \
+        -f Dockerfile \
+        --target worker \
+        .
+      - echo worker image built successfully
+      - echo tagging worker image...
+      - docker tag $ECR_WORKER_IMAGE $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_WORKER_IMAGE
+      - echo worker image built successfully
+
+
   post_build:
     commands:
-      - echo Pushing the Docker image to ECR...
-      - docker tag $IMAGE:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE:$IMAGE_TAG
-      - docker images | grep $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE
-      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE:$IMAGE_TAG
+      - echo pushing web image...
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_WEB_IMAGE
+      - echo web image pushed successfully
+      - docker images | grep $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_WEB_IMAGE
+      - echo pushing worker image...
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_WORKER_IMAGE
+      - echo worker image pushed successfully
+      - docker images | grep $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_WORKER_IMAGE
+      - echo Build completed on `date`
 
 cache:
   paths:
     - '/root/.docker/**/*'
-    - '/root/.composer/**/*'
 
 env:
   variables:
-    AWS_ACCOUNT_ID: ''
-    AWS_REGION: ''
-    PHP_VERSION: ''
-    IMAGE: 'fast8d/php-base-image'
-    IMAGE_TAG: 'latest'
+    AWS_ACCOUNT_ID: 208722357485
+    AWS_DEFAULT_REGION: eu-south-1
+    WEB_BASE_IMAGE: dunglas/frankenphp:php8.4.8
+    ECR_WEB_IMAGE: fast8d/php-base-web-image
+    WORKER_BASE_IMAGE: php:8.4.8-cli-bookworm
+    ECR_WORKER_IMAGE: fast8d/php-base-worker-image
+    BUILD_PLATFORM: linux/amd64

@@ -1,4 +1,4 @@
-.PHONY: auth build push
+.PHONY: auth build push build-web build-worker push-web
 
 include .env
 
@@ -6,15 +6,50 @@ auth:
 	@echo "authenticating in aws..."
 	aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com
 
+build-web:
+	@echo "building web image..."
+	docker build \
+	--platform ${BUILD_PLATFORM} \
+	-t ${ECR_WEB_IMAGE} \
+	--build-arg BASE_IMAGE=${WEB_BASE_IMAGE} \
+	-f Dockerfile \
+	--target web \
+	.
+	@echo "web image built successfully"
+
+build-worker:
+	@echo "building worker image..."
+	docker build \
+	--platform ${BUILD_PLATFORM} \
+	-t ${ECR_WORKER_IMAGE} \
+	--build-arg BASE_IMAGE=${WORKER_BASE_IMAGE} \
+	-f Dockerfile \
+	--target worker \
+	.
+	@echo "worker image built successfully"
+
 build:
 	@echo "building image..."
-	docker build -t ${IMAGE} --build-arg PHP_VERSION=${PHP_VERSION} .
-	@echo "tagging image..."
-	docker tag ${IMAGE}:${IMAGE_TAG} ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE}:${IMAGE_TAG}
-	@echo "image built successfully"
-	docker images | grep ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE}
+	make build-web
+	make build-worker
+
+push-web:
+	@echo "tagging web image..."
+	docker tag ${ECR_WEB_IMAGE} ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_WEB_IMAGE}
+	@echo "pushing web image..."
+	docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_WEB_IMAGE}
+	@echo "web image built successfully"
+	docker images | grep ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_WEB_IMAGE}
+
+push-worker:
+	@echo "pushing worker image..."
+	docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_WORKER_IMAGE}
+	@echo "tagging worker image..."
+	docker tag ${ECR_WORKER_IMAGE} ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_WORKER_IMAGE}
+	@echo "worker image built successfully"
+	docker images | grep ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_WORKER_IMAGE}
 
 push:
-	@echo "pushing image..."
-	docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE}:${IMAGE_TAG}
-
+	@echo "pushing images..."
+	make push-web
+	make push-worker
