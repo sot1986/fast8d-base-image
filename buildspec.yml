@@ -34,18 +34,17 @@ phases:
   post_build:
     commands:
       - echo tagging web image...
-      - docker tag $ECR_WEB_IMAGE $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_WEB_IMAGE
+      - docker tag $ECR_WEB_IMAGE:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_WEB_IMAGE:latest
       - echo pushing web image...
-      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_WEB_IMAGE
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_WEB_IMAGE:latest
       - echo web image pushed successfully
-      - docker images | grep $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_WEB_IMAGE
+      - docker images | grep $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_WEB_IMAGE:latest
       - echo tagging worker image...
-      - docker tag $ECR_WORKER_IMAGE $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_WORKER_IMAGE
-      - echo worker image built successfully
+      - docker tag $ECR_WORKER_IMAGE:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_WORKER_IMAGE:latest
       - echo pushing worker image...
-      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_WORKER_IMAGE
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_WORKER_IMAGE:latest
       - echo worker image pushed successfully
-      - docker images | grep $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_WORKER_IMAGE
+      - docker images | grep $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_WORKER_IMAGE:latest
       - echo Build completed on `date`
 
 cache:
