@@ -20,30 +20,28 @@ phases:
         --target web
         .
       - echo web image built successfully
-      - echo tagging web image...
-      - docker tag $ECR_WEB_IMAGE $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_WEB_IMAGE
-      - echo web image built successfully
 
       - >
         docker build \
-        --platform ${BUILD_PLATFORM} \
-        -t ${ECR_WORKER_IMAGE} \
-        --build-arg BASE_IMAGE=${BASE_WORKER_IMAGE} \
+        --platform $BUILD_PLATFORM \
+        -t $ECR_WORKER_IMAGE \
+        --build-arg BASE_IMAGE=$BASE_WORKER_IMAGE \
         -f Dockerfile \
         --target worker \
         .
       - echo worker image built successfully
-      - echo tagging worker image...
-      - docker tag $ECR_WORKER_IMAGE $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_WORKER_IMAGE
-      - echo worker image built successfully
-
 
   post_build:
     commands:
+      - echo tagging web image...
+      - docker tag $ECR_WEB_IMAGE $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_WEB_IMAGE
       - echo pushing web image...
       - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_WEB_IMAGE
       - echo web image pushed successfully
       - docker images | grep $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_WEB_IMAGE
+      - echo tagging worker image...
+      - docker tag $ECR_WORKER_IMAGE $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_WORKER_IMAGE
+      - echo worker image built successfully
       - echo pushing worker image...
       - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_WORKER_IMAGE
       - echo worker image pushed successfully
