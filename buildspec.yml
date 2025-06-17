@@ -21,15 +21,17 @@ phases:
         .
       - echo web image built successfully
 
+      - echo Building the Docker worker image...
       - >
-        docker build \
-        --platform $BUILD_PLATFORM \
-        -t $ECR_WORKER_IMAGE \
-        --build-arg BASE_IMAGE=$BASE_WORKER_IMAGE \
-        -f Dockerfile \
-        --target worker \
+        docker build
+        --platform $BUILD_PLATFORM
+        -t $ECR_WORKER_IMAGE
+        --build-arg BASE_IMAGE=$BASE_WORKER_IMAGE
+        -f Dockerfile
+        --target worker
         .
       - echo worker image built successfully
+
 
   post_build:
     commands:
