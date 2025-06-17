@@ -7,22 +7,22 @@ auth:
 	aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com
 
 build-web:
-	@echo "building web image..."
+	@echo "building web image from ${BASE_WEB_IMAGE}..."
 	docker build \
 	--platform ${BUILD_PLATFORM} \
 	-t ${ECR_WEB_IMAGE} \
-	--build-arg BASE_IMAGE=${WEB_BASE_IMAGE} \
+	--build-arg BASE_IMAGE=${BASE_WEB_IMAGE} \
 	-f Dockerfile \
 	--target web \
 	.
 	@echo "web image built successfully"
 
 build-worker:
-	@echo "building worker image..."
+	@echo "building worker image from ${BASE_WORKER_IMAGE}..."
 	docker build \
 	--platform ${BUILD_PLATFORM} \
 	-t ${ECR_WORKER_IMAGE} \
-	--build-arg BASE_IMAGE=${WORKER_BASE_IMAGE} \
+	--build-arg BASE_IMAGE=${BASE_WORKER_IMAGE} \
 	-f Dockerfile \
 	--target worker \
 	.

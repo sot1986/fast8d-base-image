@@ -16,7 +16,7 @@ phases:
         docker build
         --platform $BUILD_PLATFORM
         -t $ECR_WEB_IMAGE
-        --build-arg WEB_BASE_IMAGE=$WEB_BASE_IMAGE
+        --build-arg BASE_WEB_IMAGE=$BASE_WEB_IMAGE
         --target web
         .
       - echo web image built successfully
@@ -28,7 +28,7 @@ phases:
         docker build \
         --platform ${BUILD_PLATFORM} \
         -t ${ECR_WORKER_IMAGE} \
-        --build-arg BASE_IMAGE=${WORKER_BASE_IMAGE} \
+        --build-arg BASE_IMAGE=${BASE_WORKER_IMAGE} \
         -f Dockerfile \
         --target worker \
         .
@@ -58,8 +58,8 @@ env:
   variables:
     AWS_ACCOUNT_ID: 208722357485
     AWS_DEFAULT_REGION: eu-south-1
-    WEB_BASE_IMAGE: dunglas/frankenphp:php8.4.8
+    BASE_WEB_IMAGE: dunglas/frankenphp:php8.4.8
     ECR_WEB_IMAGE: fast8d/php-base-web-image
-    WORKER_BASE_IMAGE: php:8.4.8-cli-bookworm
+    BASE_WORKER_IMAGE: php:8.4.8-cli-bookworm
     ECR_WORKER_IMAGE: fast8d/php-base-worker-image
-    BUILD_PLATFORM: linux/amd64
+    BUILD_PLATFORM: linux/arm64
