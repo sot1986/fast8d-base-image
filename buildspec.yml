@@ -14,7 +14,7 @@ phases:
       - echo Building the Docker web image...
       - >
         docker build
-        --platform $ECR_WEB_IMAGE_PLATEFORM
+        --platform $BUILD_PLATFORM
         -t $ECR_WEB_IMAGE:$ECR_WEB_IMAGE_TAG
         --build-arg BASE_WEB_IMAGE=$BASE_WEB_IMAGE
         --target web
@@ -57,8 +57,7 @@ env:
     BASE_WEB_IMAGE: dunglas/frankenphp:php8.4.8
     ECR_WEB_IMAGE: fast8d/php-base-web-image
     ECR_WEB_IMAGE_TAG: latest
-    ECR_WEB_IMAGE_PLATEFORM: linux/amd64
+    BUILD_PLATFORM: linux/amd64
     BASE_WORKER_IMAGE: php:8.4.8-cli-bookworm
     ECR_WORKER_IMAGE: fast8d/php-base-worker-image
     ECR_WORKER_IMAGE_TAG: latest
-    ECR_WORKER_IMAGE_PLATFORM: linux/arm64
