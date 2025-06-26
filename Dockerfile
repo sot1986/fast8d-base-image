@@ -2,18 +2,13 @@
 ARG BASE_WEB_IMAGE=dunglas/frankenphp
 ARG COMPOSER_VERSION=2.6.1
 ARG BASE_WORKER_IMAGE=php:8.4-cli
-ARG TZ=UTC
 
 # Create Web image
 FROM ${BASE_WEB_IMAGE} AS web
-ARG TZ
 
 ENV DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /app
-
-RUN ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime \
-    && echo ${TZ} > /etc/timezone
 
 # Install system dependencies
 RUN apt-get update; \
