@@ -10,7 +10,7 @@ build-web:
 	@echo "building web image from ${BASE_WEB_IMAGE}..."
 	docker build \
 	--platform ${BUILD_PLATFORM} \
-	-t ${ECR_WEB_IMAGE} \
+	-t ${ECR_WEB_IMAGE}:${ECR_WEB_IMAGE_TAG} \
 	--build-arg BASE_IMAGE=${BASE_WEB_IMAGE} \
 	-f Dockerfile \
 	--target web \
@@ -21,7 +21,7 @@ build-worker:
 	@echo "building worker image from ${BASE_WORKER_IMAGE}..."
 	docker build \
 	--platform ${BUILD_PLATFORM} \
-	-t ${ECR_WORKER_IMAGE} \
+	-t ${ECR_WORKER_IMAGE}:${ECR_WORKER_IMAGE_TAG} \
 	--build-arg BASE_IMAGE=${BASE_WORKER_IMAGE} \
 	-f Dockerfile \
 	--target worker \
@@ -35,19 +35,17 @@ build:
 
 push-web:
 	@echo "tagging web image..."
-	docker tag ${ECR_WEB_IMAGE} ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_WEB_IMAGE}
+	docker tag ${ECR_WEB_IMAGE}:${ECR_WEB_IMAGE_TAG} ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_WEB_IMAGE}:${ECR_WEB_IMAGE_TAG}
 	@echo "pushing web image..."
-	docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_WEB_IMAGE}
+	docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_WEB_IMAGE}:${ECR_WEB_IMAGE_TAG}
 	@echo "web image built successfully"
-	docker images | grep ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_WEB_IMAGE}
 
 push-worker:
 	@echo "pushing worker image..."
-	docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_WORKER_IMAGE}
+	docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_WORKER_IMAGE}:${ECR_WORKER_IMAGE_TAG}
 	@echo "tagging worker image..."
-	docker tag ${ECR_WORKER_IMAGE} ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_WORKER_IMAGE}
+	docker tag ${ECR_WORKER_IMAGE}:${ECR_WORKER_IMAGE_TAG} ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_WORKER_IMAGE}:${ECR_WORKER_IMAGE_TAG}
 	@echo "worker image built successfully"
-	docker images | grep ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_WORKER_IMAGE}
 
 push:
 	@echo "pushing images..."

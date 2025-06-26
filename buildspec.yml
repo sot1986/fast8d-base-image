@@ -14,8 +14,8 @@ phases:
       - echo Building the Docker web image...
       - >
         docker build
-        --platform $BUILD_PLATFORM
-        -t $ECR_WEB_IMAGE
+        --platform $ECR_WEB_IMAGE_PLATEFORM
+        -t $ECR_WEB_IMAGE:$ECR_WEB_IMAGE_TAG
         --build-arg BASE_WEB_IMAGE=$BASE_WEB_IMAGE
         --target web
         .
@@ -24,8 +24,8 @@ phases:
       - echo Building the Docker worker image...
       - >
         docker build
-        --platform $BUILD_PLATFORM
-        -t $ECR_WORKER_IMAGE
+        --platform $ECR_WORKER_IMAGE_PLATFORM
+        -t $ECR_WORKER_IMAGE:$ECR_WORKER_IMAGE_TAG
         --build-arg BASE_IMAGE=$BASE_WORKER_IMAGE
         -f Dockerfile
         --target worker
@@ -36,14 +36,14 @@ phases:
   post_build:
     commands:
       - echo tagging web image...
-      - docker tag $ECR_WEB_IMAGE $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_WEB_IMAGE
+      - docker tag $ECR_WEB_IMAGE:$ECR_WEB_IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_WEB_IMAGE:$ECR_WEB_IMAGE_TAG
       - echo pushing web image...
-      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_WEB_IMAGE
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_WEB_IMAGE:$ECR_WEB_IMAGE_TAG
       - echo web image pushed successfully
       - echo tagging worker image...
-      - docker tag $ECR_WORKER_IMAGE $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_WORKER_IMAGE
+      - docker tag $ECR_WORKER_IMAGE:$ECR_WORKER_IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_WORKER_IMAGE:$ECR_WORKER_IMAGE_TAG
       - echo pushing worker image...
-      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_WORKER_IMAGE
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_WORKER_IMAGE:$ECR_WORKER_IMAGE_TAG
       - echo worker image pushed successfully
       - echo Build completed on `date`
 
@@ -55,7 +55,10 @@ env:
   variables:
     AWS_ACCOUNT_ID: 208722357485
     BASE_WEB_IMAGE: dunglas/frankenphp:php8.4.8
-    ECR_WEB_IMAGE: fast8d/php-base-web-image:latest
+    ECR_WEB_IMAGE: fast8d/php-base-web-image
+    ECR_WEB_IMAGE_TAG: latest
+    ECR_WEB_IMAGE_PLATEFORM: linux/amd64
     BASE_WORKER_IMAGE: php:8.4.8-cli-bookworm
-    ECR_WORKER_IMAGE: fast8d/php-base-worker-image:latest
-    BUILD_PLATFORM: linux/arm64
+    ECR_WORKER_IMAGE: fast8d/php-base-worker-image
+    ECR_WORKER_IMAGE_TAG: latest
+    ECR_WORKER_IMAGE_PLATFORM: linux/arm64
