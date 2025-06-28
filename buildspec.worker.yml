@@ -1,0 +1,49 @@
+### AWS buildspec.yml file for building a Docker image and pushing it to ECR
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - >
+        aws ecr get-login-password
+        --region $AWS_REGION | docker login
+        --username AWS
+        --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+  build:
+    commands:
+      - echo Building the Docker worker image...
+      - >
+        docker build
+        --platform $BUILD_PLATFORM
+        -t $ECR_IMAGE:$ECR_IMAGE_TAG
+        --build-arg BASE_IMAGE=$BASE_IMAGE
+        --target worker
+        .
+      - echo worker image built successfully
+
+  post_build:
+    commands:
+      - echo tagging worker image...
+      - >
+        docker
+        tag $ECR_IMAGE:$ECR_IMAGE_TAG
+        $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_IMAGE:$ECR_IMAGE_TAG
+      - echo pushing worker image...
+      - >
+        docker
+        push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_IMAGE:$ECR_IMAGE_TAG
+      - echo worker image pushed successfully
+      - echo Build completed on `date`
+
+cache:
+  paths:
+    - '/root/.docker/**/*'
+
+env:
+  variables:
+    AWS_ACCOUNT_ID: 208722357485
+    BASE_IMAGE: php:8.4.8-cli
+    ECR_IMAGE: fast8d/php-base-worker-image
+    ECR_IMAGE_TAG: latest
+    BUILD_PLATFORM: linux/arm64
