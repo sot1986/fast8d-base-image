@@ -17,7 +17,7 @@ phases:
         docker build
         --platform $BUILD_PLATFORM
         -t $ECR_IMAGE:$ECR_IMAGE_TAG
-        --build-arg BASE_IMAGE=$BASE_IMAGE
+        -f Dockerfile
         --target worker
         .
       - echo worker image built successfully
@@ -43,7 +43,6 @@ cache:
 env:
   variables:
     AWS_ACCOUNT_ID: 208722357485
-    BASE_IMAGE: php:8.4.8-cli
     ECR_IMAGE: fast8d/php-base-worker-image
     ECR_IMAGE_TAG: latest
     BUILD_PLATFORM: linux/arm64
