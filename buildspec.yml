@@ -1,0 +1,71 @@
+### AWS buildspec.yml file for building a Docker image and pushing it to ECR
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - >
+        aws ecr get-login-password
+        --region $AWS_REGION | docker login
+        --username AWS
+        --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+  build:
+    commands:
+      - echo Building the Docker web image...
+      - >
+        docker build
+        --platform $BUILD_PLATFORM
+        -t $ECR_WEB_IMAGE:$ECR_WEB_IMAGE_TAG
+        -f Dockerfile
+        --target web
+        .
+      - echo web image built successfully
+      - echo Building the Docker worker image...
+      - >
+        docker build
+        --platform $BUILD_PLATFORM
+        -t $ECR_WORKER_IMAGE:$ECR_WORKER_IMAGE_TAG
+        -f Dockerfile
+        --target worker
+        .
+      - echo worker image built successfully
+
+  post_build:
+    commands:
+      - echo tagging web image...
+      - >
+        docker
+        tag $ECR_WEB_IMAGE:$ECR_WEB_IMAGE_TAG
+        $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_WEB_IMAGE:$ECR_WEB_IMAGE_TAG
+      - echo pushing web image...
+      - >
+        docker
+        push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_WEB_IMAGE:$ECR_WEB_IMAGE_TAG
+      - echo web image pushed successfully
+
+      - echo tagging worker image...
+      - >
+        docker
+        tag $ECR_WORKER_IMAGE:$ECR_WORKER_IMAGE_TAG
+        $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_WORKER_IMAGE:$ECR_WORKER_IMAGE_TAG
+      - echo pushing worker image...
+      - >
+        docker
+        push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_WORKER_IMAGE:$ECR_WORKER_IMAGE_TAG
+      - echo worker image pushed successfully
+
+      - echo Build completed on `date`
+
+cache:
+  paths:
+    - '/root/.docker/**/*'
+
+env:
+  variables:
+    AWS_ACCOUNT_ID: 208722357485
+    ECR_WEB_IMAGE: fast8d/php-base-web-image
+    ECR_WEB_IMAGE_TAG: latest
+    ECR_WORKER_IMAGE: fast8d/php-base-worker-image
+    ECR_WORKER_IMAGE_TAG: latest
+    BUILD_PLATFORM: linux/arm64/v8
